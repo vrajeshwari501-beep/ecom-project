@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flipkart-Meesho Clone | Home</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #f1f3f6; }
+        
+        /* Navbar Design */
+        .navbar { background-color: #2874f0; color: white; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; z-index: 100; }
+        .logo { font-size: 22px; font-weight: bold; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .nav-btn { font-size: 16px; font-weight: bold; cursor: pointer; background: #fff; color: #2874f0; padding: 6px 14px; border-radius: 20px; border: none; }
+        .logout-btn { background: #fb641b; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
+        /* Products Grid */
+        .container { padding: 30px 50px; }
+        h2 { margin-bottom: 20px; color: #333; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        
+        /* Product Card */
+        .product-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-img { width: 100%; height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 10px; }
+        .product-title { font-size: 16px; margin-bottom: 5px; color: #333; font-weight: bold; }
+        .product-price { font-size: 18px; font-weight: bold; color: #2874f0; margin-bottom: 10px; }
+        .add-to-cart-btn { background: #ff9f00; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; width: 100%; }
+        
+        /* Modals View */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 25px; border-radius: 8px; width: 460px; max-height: 90vh; overflow-y: auto; position: relative; }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #666; }
+        
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #ddd; }
+        .remove-btn { background: none; border: none; color: #d9534f; cursor: pointer; font-size: 16px; }
+        .total-section { font-size: 20px; font-weight: bold; margin-top: 15px; text-align: right; color: #2874f0; }
+        
+        /* Structured Address Grid */
+        .checkout-section { display: none; margin-top: 15px; background: #f9f9f9; padding: 15px; border-radius: 6px; border: 1px solid #eee; }
+        .address-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px; }
+        .full-width { grid-column: span 2; }
+        .form-label { display: block; font-size: 13px; font-weight: bold; margin-top: 8px; color: #444; }
+        .form-input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; margin-top: 3px; }
+        
+        /* Real Payment Gateway UI Box */
+        .payment-box { border: 1px solid #2874f0; border-radius: 6px; padding: 15px; background: #fff; margin-top: 15px; }
+        .payment-option { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-weight: bold; cursor: pointer; }
+        .payment-details { background: #f1f3f6; padding: 12px; border-radius: 4px; margin-top: 5px; display: none; }
+        .card-row { display: flex; gap: 10px; }
+        
+        /* Order Status Item */
+        .order-card { background: #fff; border: 1px solid #ddd; padding: 15px; border-radius: 6px; margin-bottom: 15px; }
+        .order-header { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 8px; font-size: 14px; }
+        .status-badge { color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        
+        .checkout-btn { background: #fb641b; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 15px; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="logo">Flipkart-Meesho Clone</div>
+        <div class="nav-right">
+            <!-- My Orders Button -->
+            <button class="nav-btn" onclick="toggleOrdersModal(true)">📦 My Orders (0)</button>
+            <!-- Cart Button -->
+            <button class="nav-btn" id="cartBadge" onclick="toggleCartModal(true)">🛒 Cart (0)</button>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h2>Trending Products 🌟</h2>
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
+
+    <!-- 🛒 Shopping Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="toggleCartModal(false)">&times;</span>
+            <h3>Your Shopping Cart 🛒</h3>
+            <hr style="margin: 10px 0;">
+            
+            <div id="cartItemsList"></div>
+            <div class="total-section" id="cartTotal">Total: ₹0</div>
+            
+            <!-- 🏠 Structured Address Fields -->
+            <div class="checkout-section" id="checkoutSection">
+                <h4 style="color: #2874f0; border-bottom: 1px solid #ddd; padding-bottom: 5px;">1. Shipping Address 🏠</h4>
+                <div class="address-grid">
+                    <div>
+                        <label class="form-label">Door No *</label>
+                        <input type="text" class="form-input" id="doorNo" placeholder="E.g. 45/2">
+                    </div>
+                    <div>
+                        <label class="form-label">Apartment Name</label>
+                        <input type="text" class="form-input" id="apartment" placeholder="Optional">
+                    </div>
+                    <div class="full-width">
+                        <label class="form-label">Street / Colony Name *</label>
+                        <input type="text" class="form-input" id="street" placeholder="E.g. Pillaiyar Kovil St">
+                    </div>
+                    <div>
+                        <label class="form-label">Area / Locality *</label>
+                        <input type="text" class="form-input" id="area" placeholder="E.g. T.Nagar">
+                    </div>
+                    <div>
+                        <label class="form-label">District *</label>
+                        <input type="text" class="form-input" id="district" placeholder="E.g. Chennai">
+                    </div>
+                    <div>
+                        <label class="form-label">State *</label>
+                        <input type="text" class="form-input" id="state" placeholder="E.g. Tamil Nadu">
+                    </div>
+                    <div class="full-width">
+                        <label class="form-label">Pincode *</label>
+                        <input type="text" class="form-input" id="pincode" maxlength="6" placeholder="600017">
+                    </div>
+                </div>
+
+                <!-- 💳 Payment Fields -->
+                <h4 style="color: #2874f0; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 20px;">2. Payment Method 💳</h4>
+                <div class="payment-box">
+                    <div class="payment-option">
+                        <input type="radio" name="payMethod" value="COD" checked onclick="switchPaymentDetails('COD')"> Cash on Delivery (COD)
+                    </div>
+                    
+                    <div class="payment-option">
+                        <input type="radio" name="payMethod" value="UPI" onclick="switchPaymentDetails('UPI')"> UPI (GPay, PhonePe, Paytm)
+                    </div>
+                    <div class="payment-details" id="upiDetails">
+                        <label class="form-label">Enter UPI ID:</label>
+                        <input type="text" class="form-input" id="upiId" placeholder="username@oksbi">
+                    </div>
+
+                    <div class="payment-option">
+                        <input type="radio" name="payMethod" value="Card" onclick="switchPaymentDetails('Card')"> Credit / Debit Card
+                    </div>
+                    <div class="payment-details" id="cardDetails">
+                        <label class="form-label">Card Holder Name</label>
+                        <input type="text" class="form-input" id="cardName" placeholder="JOHN DOE">
+                        <label class="form-label">Card Number</label>
+                        <input type="text" class="form-input" id="cardNum" maxlength="16" placeholder="1234567898765432">
+                        <div class="card-row">
+                            <div>
+                                <label class="form-label">Expiry Date</label>
+                                <input type="text" class="form-input" id="cardExpiry" maxlength="5" placeholder="MM/YY">
+                            </div>
+                            <div>
+                                <label class="form-label">CVV</label>
+                                <input type="password" class="form-input" id="cardCvv" maxlength="3" placeholder="123">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="checkout-btn" id="mainCheckoutBtn" onclick="handleCheckoutFlow()">Proceed to Checkout 💳</button>
+        </div>
+    </div>
+
+    <!-- 📦 My Orders Modal -->
+    <div class="modal" id="ordersModal">
+        <div class="modal-content" style="width: 500px;">
+            <span class="close-btn" onclick="toggleOrdersModal(false)">&times;</span>
+            <h3>My Orders & Status 📦</h3>
+            <hr style="margin: 10px 0;">
+            <div id="ordersListContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+        let orders = [];
+        let isCheckoutStep = false;
+
+        async function fetchProducts() {
+            try {
+                const response = await fetch('/products');
+                const products = await response.json();
+                
+                const productsGrid = document.getElementById('productsGrid');
+                productsGrid.innerHTML = '';
+
+                products.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `
+                        <img src="${product.image_url}" class="product-img" alt="${product.title}">
+                        <div class="product-title">${product.title}</div>
+                        <div class="product-price">₹${product.price}</div>
+                        <button class="add-to-cart-btn" onclick="addToCart('${product.title}', ${product.price})">Add to Cart</button>
+                    `;
+                    productsGrid.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Products லோடு பண்ணுறதுல தப்புடா:', err);
+            }
+        }
+
+        function addToCart(title, price) {
+            cart.push({ title, price });
+            document.getElementById('cartBadge').innerText = `🛒 Cart (${cart.length})`;
+            alert(`${title} கார்ட்டில் சேர்க்கப்பட்டது! 🛒`);
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            document.getElementById('cartBadge').innerText = `🛒 Cart (${cart.length})`;
+            renderCartItems();
+            if (cart.length === 0) resetCheckoutForm();
+        }
+
+        function toggleCartModal(show) {
+            document.getElementById('cartModal').style.display = show ? 'flex' : 'none';
+            if (show) renderCartItems();
+            else resetCheckoutForm();
+        }
+
+        function toggleOrdersModal(show) {
+            document.getElementById('ordersModal').style.display = show ? 'flex' : 'none';
+            if (show) renderOrdersList();
+        }
+
+        function renderCartItems() {
+            const listContainer = document.getElementById('cartItemsList');
+            const totalContainer = document.getElementById('cartTotal');
+            listContainer.innerHTML = '';
+            let totalPrice = 0;
+
+            if (cart.length === 0) {
+                listContainer.innerHTML = '<p style="text-align:center; color:#777; margin: 20px 0;">Your cart is empty! 😔</p>';
+                totalContainer.innerText = 'Total: ₹0';
+                document.getElementById('mainCheckoutBtn').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('mainCheckoutBtn').style.display = 'block';
+
+            cart.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'cart-item';
+                itemDiv.innerHTML = `
+                    <span>${item.title}</span>
+                    <div>
+                        <strong style="margin-right: 10px;">₹${item.price}</strong>
+                        <button class="remove-btn" onclick="removeFromCart(${index})">❌</button>
+                    </div>
+                `;
+                listContainer.appendChild(itemDiv);
+                totalPrice += item.price;
+            });
+            totalContainer.innerText = `Total: ₹${totalPrice}`;
+        }
+
+        function switchPaymentDetails(method) {
+            document.getElementById('upiDetails').style.display = (method === 'UPI') ? 'block' : 'none';
+            document.getElementById('cardDetails').style.display = (method === 'Card') ? 'block' : 'none';
+        }
+
+        function resetCheckoutForm() {
+            document.getElementById('checkoutSection').style.display = 'none';
+            document.getElementById('mainCheckoutBtn').innerText = 'Proceed to Checkout 💳';
+            isCheckoutStep = false;
+            ['doorNo', 'apartment', 'street', 'area', 'district', 'state', 'pincode', 'upiId', 'cardName', 'cardNum', 'cardExpiry', 'cardCvv'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            switchPaymentDetails('COD');
+        }
+
+        function handleCheckoutFlow() {
+            if (!isCheckoutStep) {
+                document.getElementById('checkoutSection').style.display = 'block';
+                document.getElementById('mainCheckoutBtn').innerText = 'Confirm & Pay Now 🔒';
+                isCheckoutStep = true;
+            } else {
+                const doorNo = document.getElementById('doorNo').value.trim();
+                const street = document.getElementById('street').value.trim();
+                const area = document.getElementById('area').value.trim();
+                const district = document.getElementById('district').value.trim();
+                const state = document.getElementById('state').value.trim();
+                const pincode = document.getElementById('pincode').value.trim();
+                
+                if (!doorNo || !street || !area || !district || !state || !pincode) {
+                    alert("దయచేసి ஸ்டார் (*) போட்ட எல்லா முகவரி விபரங்களையும் கரெக்ட்டா டைப் பண்ணுங்கடா! 🏠");
+                    return;
+                }
+
+                const payMethod = document.querySelector('input[name="payMethod"]:checked').value;
+                if (payMethod === 'UPI') {
+                    const upiId = document.getElementById('upiId').value.trim();
+                    if(!upiId.includes('@')) { alert("சரியான UPI ID-ஐ உள்ளிடவும்! (E.g. test@upi)"); return; }
+                } else if (payMethod === 'Card') {
+                    const cardNum = document.getElementById('cardNum').value.trim();
+                    const cardExpiry = document.getElementById('cardExpiry').value.trim();
+                    const cardCvv = document.getElementById('cardCvv').value.trim();
+                    if(cardNum.length < 16 || !cardExpiry.includes('/') || cardCvv.length < 3) {
+                        alert("கார்டு விபரங்களை சரியா டைப் பண்ணுங்கடா! 💳");
+                        return;
+                    }
+                }
+
+                const orderId = "OD" + Math.floor(100000 + Math.random() * 900000);
+                const fullAddress = `${doorNo}, ${street}, ${area}, ${district}, ${state} - ${pincode}`;
+                let totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
+
+                const newOrder = {
+                    id: orderId,
+                    items: [...cart],
+                    total: totalAmount,
+                    address: fullAddress,
+                    payment: payMethod,
+                    status: "Order Placed 🌟", 
+                    statusColor: "#2874f0", 
+                    date: new Date().toLocaleDateString()
+                };
+
+                orders.unshift(newOrder);
+                alert(`Payment Successful & Order Placed! 🎉\n\n🆔 Order ID: ${orderId}\n🚚 Live Tracking Started! Check 'My Orders'.`);
+
+                // ⏱️ Live Tracker Mode ON Simulation
+                setTimeout(() => {
+                    newOrder.status = "Packed & Ready 📦";
+                    newOrder.statusColor = "#ff9f00"; 
+                    renderOrdersList(); 
+                }, 5000);
+
+                setTimeout(() => {
+                    newOrder.status = "Shipped from Hub 🚚";
+                    newOrder.statusColor = "#007bff"; 
+                    renderOrdersList();
+                }, 12000);
+
+                setTimeout(() => {
+                    newOrder.status = "Out for Delivery 🛵";
+                    newOrder.statusColor = "#2e7d32"; 
+                    renderOrdersList();
+                }, 20000);
+
+                cart = [];
+                document.getElementById('cartBadge').innerText = `🛒 Cart (0)`;
+                document.querySelector('[onclick*="toggleOrdersModal"]').innerText = `📦 My Orders (${orders.length})`;
+                toggleCartModal(false);
+            }
+        }
+
+        function renderOrdersList() {
+            const container = document.getElementById('ordersListContainer');
+            container.innerHTML = '';
+
+            if (orders.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#777; padding: 20px 0;">You haven\'t ordered anything yet! 🛍️</p>';
+                return;
+            }
+
+            orders.forEach(order => {
+                const itemNames = order.items.map(i => i.title).join(', ');
+                const div = document.createElement('div');
+                div.className = 'order-card';
+                div.innerHTML = `
+                    <div class="order-header">
+                        <strong>Order ID: ${order.id}</strong>
+                        <span>${order.date}</span>
+                    </div>
+                    <p><strong>Products:</strong> ${itemNames}</p>
+                    <p><strong>Total Bill:</strong> ₹${order.total} (${order.payment})</p>
+                    <p style="font-size:13px; color:#555; margin-top:5px;"><strong>Deliver To:</strong> ${order.address}</p>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; border-top:1px dashed #eee; padding-top:8px;">
+                        <span style="font-weight: bold; color: #555;">Live Tracker 🕒 :</span>
+                        <span class="status-badge" style="background-color: ${order.statusColor};">${order.status}</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.onload = fetchProducts;
+
+        function logout() {
+            alert("Logging out...");
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

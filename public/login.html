@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flipkart-Meesho Clone | Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="form-container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" required placeholder="Enter your email">
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="Enter password">
+            </div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+        <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                // நம்ம server.js-ல இருக்குற /login ரூட்டுக்கு டேட்டாவை அனுப்புறோம்
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.text();
+if (response.ok) {
+    alert("Login Successful! 🎉");
+    window.location.href = 'index.html'; // இதுதான் ஹோம் பேஜுக்கு கூட்டிட்டு போகும்!
+} else {
+    alert(data); // தப்பா இருந்தா "Invalid" மெசேஜ் காட்டும்
+}
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        });
+    </script>
+</body>
+</html>
